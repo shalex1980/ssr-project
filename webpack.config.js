@@ -6,8 +6,8 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 const publicPath = 'http://localhost:8050/public/assets';
 const devMod = process.env.NODE_ENV !== 'production' ;
-const jsName = devMod ? 'bundle.js' : 'bundle-[hash].js';
-const cssName = devMod ? 'styles.css' : 'styles-[hash].css';
+const jsName = 'bundle.js'; //devMod ? 'bundle.js' : 'bundle-[hash].js';
+const cssName = 'styles.css'; //!devMod ? 'styles.css' : 'styles-[hash].css';
 const DEPL = process.env.DEPL !== 'csr';
 console.log(DEPL, '!!!!!');
 
@@ -28,7 +28,7 @@ if( !devMod ) {
 if( !DEPL) {
   plugins.push(
     new HtmlWebpackPlugin({
-      template: "./public/index.html"
+      template: "./src/index.html"
     })
   )
 }
@@ -57,6 +57,7 @@ module.exports = {
             loader: MiniCssExtractPlugin.loader,
             options: {
               hmr: devMod,
+              publicPath: DEPL ? devMod ? 'http://localhost:8050': publicPath : './',
             },
           },
           'css-loader',
@@ -89,7 +90,7 @@ if(DEPL) {
   module.exports.devServer = {
     headers: { 'Access-Control-Allow-Origin': '*' },
     port: 8050,
-    contentBase: path.join(__dirname, 'public/assets'),
+    //contentBase: path.join(__dirname, 'public/assets'),
     hot: true,
     watchContentBase: true
   }

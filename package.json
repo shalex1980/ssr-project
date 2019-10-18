@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "NODE_ENV=production webpack -p",
-    "dev": "NODE_ENV=development webpack-dev-server --color",
+    "dev": "NODE_ENV=development webpack-dev-server --color --watch",
     "dev:csr": "DEPL=csr webpack-dev-server --color",
     "nodemon": "nodemon ./index.js"
   },

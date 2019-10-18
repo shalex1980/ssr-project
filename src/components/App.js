@@ -23,8 +23,7 @@ class App extends React.Component {
       <main>
         <div className="App">
           <h1>Hello World </h1>
-          <img src={success} alt=""/>
-          <img src={success_2} alt=""/>
+          {process.env.DEPL ? 'NOT image' : <img src={success} alt=""/> }
           <div>
             <p>Enter your name:</p>
             <div><input type="text" onChange={this.handleNameChange}/></div>
