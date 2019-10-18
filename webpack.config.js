@@ -1,13 +1,20 @@
 const path = require('path');
+const webpack = require('webpack');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 const publicPath = 'http://localhost:8050/public/assets';
 const devMod = process.env.NODE_ENV !== 'production' ;
 const jsName = devMod ? 'bundle.js' : 'bundle-[hash].js';
 const cssName = devMod ? 'styles.css' : 'styles-[hash].css';
+const DEPL = process.env.DEPL !== 'csr';
+console.log(DEPL, '!!!!!');
 
 const plugins = [
+  new webpack.DefinePlugin({
+    DEPL : JSON.stringify('ssr'),
+  }),
   new MiniCssExtractPlugin({
     filename: cssName
   })
@@ -18,15 +25,20 @@ if( !devMod ) {
     new CleanWebpackPlugin()
   )
 }
+if( !DEPL) {
+  plugins.push(
+    new HtmlWebpackPlugin({
+      template: "./public/index.html"
+    })
+  )
+}
 
 module.exports = {
   mode: 'development',
-  context: path.join(__dirname, 'src'),
-  entry:  './client.js',
+  entry:  './src/client.js',
   output: {
     filename: jsName,
-    path: path.join(__dirname, 'public/assets'),
-    publicPath
+    path: path.join(__dirname, "public/assets"),
   },
   plugins,
   module: {
@@ -36,13 +48,6 @@ module.exports = {
         exclude: /(node_modules|bower_components)/,
         use: {
           loader: 'babel-loader',
-          /*options: {
-            presets: ['@babel/preset-env', '@babel/preset-react'],
-            plugins: [
-              "@babel/plugin-proposal-class-properties"
-            ]
-          }*/
-
         }
       },
       {
@@ -62,18 +67,31 @@ module.exports = {
         test: /\.(png|jpe?g|gif)$/i,
         loader: 'file-loader',
         options: {
-          publicPath: "public/assets",
-          name: '[path][name].[ext]'
+          //publicPath: "public/assets",
+          //name: '[name].[ext]',
+          outputPath: (url, srcPath, context) => {
+            console.log(url, ' url');
+            console.log(srcPath, ' srcPath');
+            console.log(context, ' context');
+            console.log(DEPL , ' !!!!');
+            let path = srcPath.slice(srcPath.indexOf('src') + 3);
+            console.log(path, ' path');
+            return devMod ? `/public/assets${path}` : path;
+          }
         },
       },
     ]
   },
-  devServer: {
+  devtool: devMod ? 'source-map': false
+}
+if(DEPL) {
+  module.exports.output.publicPath = publicPath;
+  module.exports.devServer = {
     headers: { 'Access-Control-Allow-Origin': '*' },
     port: 8050,
     contentBase: path.join(__dirname, 'public/assets'),
     hot: true,
     watchContentBase: true
-  },
-  devtool: devMod ? 'source-map': false
+  }
+  console.log('SSSSSSSR');
 }
